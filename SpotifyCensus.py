@@ -139,11 +139,6 @@ def main():
     for d in audio2020:
         d = d[0]
         cur.execute('INSERT INTO audio2020 (id, danceability, energy, liveness, tempo) VALUES (?,?,?,?,?)', (d['id'], d['danceability'], d['energy'], d['liveness'], d['tempo']))
-    
-    #joining the tables, creating three meta tables for all information on each year's respective chart
-    # cur.execute("DROP TABLE IF EXISTS audio2020")
-    # cur.execute("CREATE TABLE audio2020 ('id' TEXT PRIMARY KEY, 'danceability' REAL, 'energy' REAL, 'liveness' REAL, 'tempo' REAL)")
-    cur.execute("SELECT billboard2000.id, billboard2000.track, billboard2000.artist, billboard2000.genres, audio2000.id, audio2000.danceability, audio2000.energy, audio2000.liveness, audio2000.tempo FROM audio2000 JOIN billboard2000 ON audio2000.id = billboard2000.id")
     conn.commit()
 
 if __name__ == "__main__":
