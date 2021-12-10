@@ -91,16 +91,36 @@ def scrape_top_music(year):
 def main():
     conn = sqlite3.connect('charts.db')
     cur = conn.cursor()
-    #making the base tables
+    
+    cur.execute("DROP TABLE IF EXISTS wiki2000")
+    cur.execute("CREATE TABLE wiki2000 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
+    wiki2000 = scrape_top_music(2000)
+    for num in wiki2000:
+        cur.execute('INSERT INTO wiki2000 (track, artist) VALUES (?,?)', (wiki2000[num]['song_name'], wiki2000[num]['artist']))
+    
+    cur.execute("DROP TABLE IF EXISTS wiki2010")
+    cur.execute("CREATE TABLE wiki2010 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
+    wiki2010 = scrape_top_music(2010)
+    for num in wiki2010:
+        cur.execute('INSERT INTO wiki2010 (track, artist) VALUES (?,?)', (wiki2010[num]['song_name'], wiki2010[num]['artist']))
+    
+    cur.execute("DROP TABLE IF EXISTS wiki2020")
+    cur.execute("CREATE TABLE wiki2020 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
+    wiki2020 = scrape_top_music(2020)
+    for num in wiki2020:
+        cur.execute('INSERT INTO wiki2020 (track, artist) VALUES (?,?)', (wiki2020[num]['song_name'], wiki2020[num]['artist']))
+
+    #making the tables with spotify info 
+
     cur.execute("DROP TABLE IF EXISTS billboard2000")
     cur.execute("CREATE TABLE billboard2000 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
     cur.execute("DROP TABLE IF EXISTS billboard2010")
     cur.execute("CREATE TABLE billboard2010 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
     cur.execute("DROP TABLE IF EXISTS billboard2020")
     cur.execute("CREATE TABLE billboard2020 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
-    top2000 = get_info(scrape_top_music(2000))
-    top2010 = get_info(scrape_top_music(2010))
-    top2020 = get_info(scrape_top_music(2020))
+    top2000 = get_info(wiki2000)
+    top2010 = get_info(wiki2010)
+    top2020 = get_info(wiki2020)
     for d in top2000:
         gs = ""
         for genre in d["genres"]:
