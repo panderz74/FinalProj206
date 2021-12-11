@@ -38,9 +38,6 @@ def getsongs(pl):
         newli.append(song["song"])
     return newli
 
-# print(getsongs(playlistsongs("https://open.spotify.com/playlist/1GIJsNcI4aLIm0ftqRFZVu?si=c256fd19fbca4ae6")))
-
-
 #takes dictionary of artists and song names and searches spotify for them, returning a list of dictionaries for each song with id, track, artist, and genres. 
 def get_info(d):
     queries =[]
@@ -88,14 +85,14 @@ def scrape_top_music(year):
 
     return song_dict
 
-q = 0
-i = 25
-string = "qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm"
-for num in range(4):
-    z = string[q:i]
-    q = i
-    i += 25
-    print(z)
+# q = 0
+# i = 25
+# string = "qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm"
+# for num in range(4):
+#     z = string[q:i]
+#     q = i
+#     i += 25
+#     print(z)
 
 def main():
     conn = sqlite3.connect('charts.db')
@@ -120,7 +117,6 @@ def main():
         cur.execute('INSERT INTO wiki2020 (track, artist) VALUES (?,?)', (wiki2020[num]['song_name'], wiki2020[num]['artist']))
 
     #making the tables with spotify info 
-
     cur.execute("DROP TABLE IF EXISTS billboard2000")
     cur.execute("CREATE TABLE billboard2000 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
     cur.execute("DROP TABLE IF EXISTS billboard2010")
@@ -148,7 +144,7 @@ def main():
             gs += genre + ", "
         d["genres"] = gs
         cur.execute('INSERT INTO billboard2020 (id, track, artist, genres) VALUES (?,?,?,?)', (d['id'], d['track'], d['artist'], d['genres']))
-    
+     
     #making tables for audio info
     audio2000 = get_audio_info(top2000)
     audio2010 = get_audio_info(top2010)
@@ -168,6 +164,93 @@ def main():
     for d in audio2020:
         d = d[0]
         cur.execute('INSERT INTO audio2020 (id, danceability, energy, liveness, tempo) VALUES (?,?,?,?,?)', (d['id'], d['danceability'], d['energy'], d['liveness'], d['tempo']))
+
+    #--CALCULATIONS--
+
+    # Make a dictionary of how frequently each artist is on the top 100
+    # cur.execute("SELECT artist FROM wiki2000")
+    # artists = cur.fetchall()
+    # ad = {}
+    # for artist in artists:
+    #     for name in artist:
+    #         if name not in ad:
+    #             ad[name] = 0
+    #         ad[name] += 1
+    # ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
+    # print(ad)
+
+    # cur.execute("SELECT artist FROM wiki2010")
+    # artists = cur.fetchall()
+    # ad = {}
+    # for artist in artists:
+    #     for name in artist:
+    #         if name not in ad:
+    #             ad[name] = 0
+    #         ad[name] += 1
+    # ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
+    # print(ad)
+
+    # cur.execute("SELECT artist FROM wiki2020")
+    # artists = cur.fetchall()
+    # ad = {}
+    # for artist in artists:
+    #     for name in artist:
+    #         if name not in ad:
+    #             ad[name] = 0
+    #         ad[name] += 1
+    # ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
+    # print(ad)
+
+    # Make a dictionary of how frequently each genre is in the top 100
+    cur.execute("SELECT billboard2000.id, billboard2000.track, billboard2000.artist, billboard2000.genres, audio2000.danceability, audio2000.energy, audio2000.liveness, audio2000.tempo FROM audio2000 JOIN billboard2000 ON audio2000.id = billboard2000.id WHERE billboard2000.id = audio2000.id")
+    rows = cur.fetchall()
+    gd ={}
+    print(rows[0])
+    gd = {}
+    for row in rows:
+        for string in row[3].split(", "):
+            string = string.strip()
+                if genre not in gd:
+                    if genre != "" and genre != " ":
+                        gd[genre] = 0
+                if genre != "" and genre != " ":
+                    gd[genre] += 1
+    gd = dict(sorted(gd.items(), key=lambda item: item[1], reverse=True))
+    print(gd)
+
+    # cur.execute("SELECT genres FROM billboard2010")
+    # genres = cur.fetchall()
+    # gd ={}
+    # for tup in genres:
+    #     for string in tup:
+    #         string = string.split(', ')
+    #         for genre in string:
+    #             genre = genre.strip()
+    #             if genre not in gd:
+    #                 if genre != "" and genre != " ":
+    #                     gd[genre] = 0
+    #             if genre != "" and genre != " ":
+    #                 gd[genre] += 1
+    # gd = dict(sorted(gd.items(), key=lambda item: item[1], reverse=True))
+    # print(gd)
+    
+    # cur.execute("SELECT genres FROM billboard2020")
+    # genres = cur.fetchall()
+    # gd ={}
+    # for tup in genres:
+    #     for string in tup:
+    #         string = string.split(', ')
+    #         for genre in string:
+    #             genre = genre.strip()
+    #             if genre not in gd:
+    #                 if genre != "" and genre != " ":
+    #                     gd[genre] = 0
+    #             if genre != "" and genre != " ":
+    #                 gd[genre] += 1
+    # gd = dict(sorted(gd.items(), key=lambda item: item[1], reverse=True))
+    # print(gd)
+    
+    #find the average danceability, energy, liveness, and tempo for each track
     conn.commit()
 
 if __name__ == "__main__":
