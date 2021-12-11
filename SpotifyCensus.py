@@ -88,6 +88,15 @@ def scrape_top_music(year):
 
     return song_dict
 
+q = 0
+i = 25
+string = "qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm"
+for num in range(4):
+    z = string[q:i]
+    q = i
+    i += 25
+    print(z)
+
 def main():
     conn = sqlite3.connect('charts.db')
     cur = conn.cursor()
