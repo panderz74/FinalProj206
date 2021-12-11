@@ -1,6 +1,7 @@
 # SI 206 Final Project
 # Census API
 
+import matplotlib
 import requests
 import json
 import sqlite3
@@ -380,6 +381,47 @@ def main():
     totalTwoOrMoreRaces2020 = TwoOrMoreRaces2020[0][0]
     TwoOrMoreRacesPercentage2020 = totalTwoOrMoreRaces2020 / totalPopulation2020
     #print(TwoOrMoreRacesPercentage2020)
+
+
+    #### MatPlot Visualizations
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    # Pie Chart 2000
+    
+    labels = 'White', 'AfricanAmerican', 'American Indian / Alaska', 'Asian', 'Hawaiian / Other Pacific Islander', 'Hispanic or Latino', 'Two or More Races'
+    sizes = [whitePercentage2000, africanamericanPercentage2000, AmericanIndianAlaskaPercentage2000, AsianPercentage2000, HawaiianOtherPacificIslanderPercentage2000, HispanicLatinoPercentage2000, TwoOrMoreRacesPercentage2000]
+    colors = ['blue', 'yellow', 'green', 'brown', 'purple', 'orange', 'violet']
+
+    plt.pie(sizes, labels=labels, colors=colors, autopct = '%50.0f%%', shadow=False, startangle=140)
+
+    plt.axis('equal')
+    #plt.show()
+
+    # Pie Chart 2010
+
+    labels = 'White', 'AfricanAmerican', 'American Indian / Alaska', 'Asian', 'Hawaiian / Other Pacific Islander', 'Hispanic or Latino', 'Two or More Races'
+    sizes = [whitePercentage2000, africanamericanPercentage2000, AmericanIndianAlaskaPercentage2000, AsianPercentage2000, HawaiianOtherPacificIslanderPercentage2000, HispanicLatinoPercentage2000, TwoOrMoreRacesPercentage2000]
+    colors = ['blue', 'yellow', 'green', 'brown', 'purple', 'orange', 'violet']
+
+    plt.pie(sizes, labels=labels, colors=colors, autopct = '%50.0f%%', shadow=False, startangle=140)
+
+    plt.axis('equal')
+    #plt.show()
+
+    # Pie Chart 2020
+    
+    labels = 'White', 'AfricanAmerican', 'American Indian / Alaska', 'Asian', 'Hawaiian / Other Pacific Islander', 'Hispanic or Latino', 'Two or More Races'
+    sizes = [whitePercentage2000, africanamericanPercentage2000, AmericanIndianAlaskaPercentage2000, AsianPercentage2000, HawaiianOtherPacificIslanderPercentage2000, HispanicLatinoPercentage2000, TwoOrMoreRacesPercentage2000]
+    colors = ['blue', 'yellow', 'green', 'brown', 'purple', 'orange', 'violet']
+
+    plt.pie(sizes, labels=labels, colors=colors, autopct = '%0.0f%%', shadow=False, startangle=360)
+
+    matplotlib.pyplot.legend()
+
+    plt.axis('equal')
+    #plt.show()
 
 
 if __name__ == "__main__":
