@@ -85,14 +85,7 @@ def scrape_top_music(year):
 
     return song_dict
 
-# q = 0
-# i = 25
-# string = "qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm"
-# for num in range(4):
-#     z = string[q:i]
-#     q = i
-#     i += 25
-#     print(z)
+
 
 def main():
     conn = sqlite3.connect('charts.db')
@@ -166,91 +159,121 @@ def main():
         cur.execute('INSERT INTO audio2020 (id, danceability, energy, liveness, tempo) VALUES (?,?,?,?,?)', (d['id'], d['danceability'], d['energy'], d['liveness'], d['tempo']))
 
     #--CALCULATIONS--
-
     # Make a dictionary of how frequently each artist is on the top 100
-    # cur.execute("SELECT artist FROM wiki2000")
-    # artists = cur.fetchall()
-    # ad = {}
-    # for artist in artists:
-    #     for name in artist:
-    #         if name not in ad:
-    #             ad[name] = 0
-    #         ad[name] += 1
-    # ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
-    # print(ad)
+    cur.execute("SELECT artist FROM wiki2000")
+    artists = cur.fetchall()
+    ad = {}
+    for artist in artists:
+        for name in artist:
+            if name not in ad:
+                ad[name] = 0
+            ad[name] += 1
+    ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
+    print(ad)
 
-    # cur.execute("SELECT artist FROM wiki2010")
-    # artists = cur.fetchall()
-    # ad = {}
-    # for artist in artists:
-    #     for name in artist:
-    #         if name not in ad:
-    #             ad[name] = 0
-    #         ad[name] += 1
-    # ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
-    # print(ad)
+    cur.execute("SELECT artist FROM wiki2010")
+    artists = cur.fetchall()
+    ad = {}
+    for artist in artists:
+        for name in artist:
+            if name not in ad:
+                ad[name] = 0
+            ad[name] += 1
+    ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
+    print(ad)
 
-    # cur.execute("SELECT artist FROM wiki2020")
-    # artists = cur.fetchall()
-    # ad = {}
-    # for artist in artists:
-    #     for name in artist:
-    #         if name not in ad:
-    #             ad[name] = 0
-    #         ad[name] += 1
-    # ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
-    # print(ad)
+    cur.execute("SELECT artist FROM wiki2020")
+    artists = cur.fetchall()
+    ad = {}
+    for artist in artists:
+        for name in artist:
+            if name not in ad:
+                ad[name] = 0
+            ad[name] += 1
+    ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
+    print(ad)
 
-    # Make a dictionary of how frequently each genre is in the top 100
+    #first, get a dictionary of how frequently genres appear. Next, find the average danceability, energy, liveness, and tempo for each year
+    sumli =[]
     cur.execute("SELECT billboard2000.id, billboard2000.track, billboard2000.artist, billboard2000.genres, audio2000.danceability, audio2000.energy, audio2000.liveness, audio2000.tempo FROM audio2000 JOIN billboard2000 ON audio2000.id = billboard2000.id WHERE billboard2000.id = audio2000.id")
     rows = cur.fetchall()
-    gd ={}
-    print(rows[0])
     gd = {}
+    dancesum = 0
+    energysum = 0
+    livesum = 0
+    temposum = 0
     for row in rows:
         for string in row[3].split(", "):
             string = string.strip()
-                if genre not in gd:
-                    if genre != "" and genre != " ":
-                        gd[genre] = 0
-                if genre != "" and genre != " ":
-                    gd[genre] += 1
+            if string not in gd:
+                if string != "" and string != " ":
+                    gd[string] = 0
+            if string != "" and string != " ":
+                gd[string] += 1
+        dancesum += row[4]
+        energysum += row[5]
+        livesum += row[6]
+        temposum += row[7]
     gd = dict(sorted(gd.items(), key=lambda item: item[1], reverse=True))
-    print(gd)
+    danceave = dancesum / 100
+    energyave = energysum / 100
+    liveave = livesum / 100
+    tempoave = temposum /100
+    sumli.append(("sum2000:", gd, danceave, energyave, liveave, tempoave))
 
-    # cur.execute("SELECT genres FROM billboard2010")
-    # genres = cur.fetchall()
-    # gd ={}
-    # for tup in genres:
-    #     for string in tup:
-    #         string = string.split(', ')
-    #         for genre in string:
-    #             genre = genre.strip()
-    #             if genre not in gd:
-    #                 if genre != "" and genre != " ":
-    #                     gd[genre] = 0
-    #             if genre != "" and genre != " ":
-    #                 gd[genre] += 1
-    # gd = dict(sorted(gd.items(), key=lambda item: item[1], reverse=True))
-    # print(gd)
-    
-    # cur.execute("SELECT genres FROM billboard2020")
-    # genres = cur.fetchall()
-    # gd ={}
-    # for tup in genres:
-    #     for string in tup:
-    #         string = string.split(', ')
-    #         for genre in string:
-    #             genre = genre.strip()
-    #             if genre not in gd:
-    #                 if genre != "" and genre != " ":
-    #                     gd[genre] = 0
-    #             if genre != "" and genre != " ":
-    #                 gd[genre] += 1
-    # gd = dict(sorted(gd.items(), key=lambda item: item[1], reverse=True))
-    # print(gd)
-    
-    #find the average danceability, energy, liveness, and tempo for each track
+    cur.execute("SELECT billboard2010.id, billboard2010.track, billboard2010.artist, billboard2010.genres, audio2010.danceability, audio2010.energy, audio2010.liveness, audio2010.tempo FROM audio2010 JOIN billboard2010 ON audio2010.id = billboard2010.id WHERE billboard2010.id = audio2010.id")
+    rows = cur.fetchall()
+    gd = {}
+    dancesum = 0
+    energysum = 0
+    livesum = 0
+    temposum = 0
+    for row in rows:
+        for string in row[3].split(", "):
+            string = string.strip()
+            if string not in gd:
+                if string != "" and string != " ":
+                    gd[string] = 0
+            if string != "" and string != " ":
+                gd[string] += 1
+        dancesum += row[4]
+        energysum += row[5]
+        livesum += row[6]
+        temposum += row[7]
+    gd = dict(sorted(gd.items(), key=lambda item: item[1], reverse=True))
+    danceave = dancesum / 100
+    energyave = energysum / 100
+    liveave = livesum / 100
+    tempoave = temposum /100
+    sumli.append(("sum2010:", gd, danceave, energyave, liveave, tempoave))
+
+    cur.execute("SELECT billboard2020.id, billboard2020.track, billboard2020.artist, billboard2020.genres, audio2020.danceability, audio2020.energy, audio2020.liveness, audio2020.tempo FROM audio2020 JOIN billboard2020 ON audio2020.id = billboard2020.id WHERE billboard2020.id = audio2020.id")
+    rows = cur.fetchall()
+    gd = {}
+    dancesum = 0
+    energysum = 0
+    livesum = 0
+    temposum = 0
+    for row in rows:
+        for string in row[3].split(", "):
+            string = string.strip()
+            if string not in gd:
+                if string != "" and string != " ":
+                    gd[string] = 0
+            if string != "" and string != " ":
+                gd[string] += 1
+        dancesum += row[4]
+        energysum += row[5]
+        livesum += row[6]
+        temposum += row[7]
+    gd = dict(sorted(gd.items(), key=lambda item: item[1], reverse=True))
+    danceave = dancesum / 100
+    energyave = energysum / 100
+    liveave = livesum / 100
+    tempoave = temposum /100
+    sumli.append(("sum2020:", gd, danceave, energyave, liveave, tempoave))
+
+    print(sumli)
     conn.commit()
 
 if __name__ == "__main__":
