@@ -18,19 +18,6 @@ auth_manager = SpotifyClientCredentials(client_id = CLIENT_ID, client_secret = C
 
 sp = spotipy.Spotify(auth_manager=auth_manager)
 
-#returns id, song name, album, artist of each song on playlist
-def playlistsongs(id):
-    plist = sp.playlist_tracks(id)
-    listinfo = []
-    for song in plist["items"]:
-        songdict = {}
-        songdict["id"] = song["track"]["id"]
-        songdict["song"] = song["track"]["name"]
-        songdict["album"] = song["track"]["album"]["name"]
-        songdict["artist"] = song["track"]["album"]["artists"][0]["name"]
-        listinfo.append(songdict)
-    return listinfo
-
 #takes the id from each dictionary and makes a list of ids
 def getsongs(pl):
     newli = []
@@ -174,36 +161,33 @@ def main():
     # Make a dictionary of how frequently each artist is on the top 100
     cur.execute("SELECT artist FROM wiki2000")
     artists = cur.fetchall()
-    ad = {}
+    ad1 = {}
     for artist in artists:
         for name in artist:
-            if name not in ad:
-                ad[name] = 0
-            ad[name] += 1
-    ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
-    print(ad)
+            if name not in ad1:
+                ad1[name] = 0
+            ad1[name] += 1
+    ad1 = dict(sorted(ad1.items(), key=lambda item: item[1], reverse=True))
 
     cur.execute("SELECT artist FROM wiki2010")
     artists = cur.fetchall()
-    ad = {}
+    ad2 = {}
     for artist in artists:
         for name in artist:
-            if name not in ad:
-                ad[name] = 0
-            ad[name] += 1
-    ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
-    print(ad)
+            if name not in ad2:
+                ad2[name] = 0
+            ad2[name] += 1
+    ad2 = dict(sorted(ad2.items(), key=lambda item: item[1], reverse=True))
 
     cur.execute("SELECT artist FROM wiki2020")
     artists = cur.fetchall()
-    ad = {}
+    ad3 = {}
     for artist in artists:
         for name in artist:
-            if name not in ad:
-                ad[name] = 0
-            ad[name] += 1
-    ad = dict(sorted(ad.items(), key=lambda item: item[1], reverse=True))
-    print(ad)
+            if name not in ad3:
+                ad3[name] = 0
+            ad3[name] += 1
+    ad3 = dict(sorted(ad3.items(), key=lambda item: item[1], reverse=True))
 
     #first, get a dictionary of how frequently genres appear. Next, find the average danceability, energy, liveness, and tempo for each year
     sumli =[]
@@ -231,7 +215,12 @@ def main():
     energyave = energysum / 100
     liveave = livesum / 100
     tempoave = temposum /100
-    sumli.append(("sum2000:", gd, danceave, energyave, liveave, tempoave))
+    adav = {}
+    for num in ad1.values():
+        if num not in adav:
+            adav[num] = 0
+        adav[num] += 1
+    sumli.append(("sum2000:", gd, danceave, energyave, liveave, tempoave, adav))
 
     cur.execute("SELECT billboard2010.id, billboard2010.track, billboard2010.artist, billboard2010.genres, audio2010.danceability, audio2010.energy, audio2010.liveness, audio2010.tempo FROM audio2010 JOIN billboard2010 ON audio2010.id = billboard2010.id WHERE billboard2010.id = audio2010.id")
     rows = cur.fetchall()
@@ -257,7 +246,12 @@ def main():
     energyave = energysum / 100
     liveave = livesum / 100
     tempoave = temposum /100
-    sumli.append(("sum2010:", gd, danceave, energyave, liveave, tempoave))
+    adav = {}
+    for num in ad2.values():
+        if num not in adav:
+            adav[num] = 0
+        adav[num] += 1
+    sumli.append(("sum2010:", gd, danceave, energyave, liveave, tempoave, adav))
 
     cur.execute("SELECT billboard2020.id, billboard2020.track, billboard2020.artist, billboard2020.genres, audio2020.danceability, audio2020.energy, audio2020.liveness, audio2020.tempo FROM audio2020 JOIN billboard2020 ON audio2020.id = billboard2020.id WHERE billboard2020.id = audio2020.id")
     rows = cur.fetchall()
@@ -283,7 +277,12 @@ def main():
     energyave = energysum / 100
     liveave = livesum / 100
     tempoave = temposum /100
-    sumli.append(("sum2020:", gd, danceave, energyave, liveave, tempoave))
+    adav = {}
+    for num in ad3.values():
+        if num not in adav:
+            adav[num] = 0
+        adav[num] += 1
+    sumli.append(("sum2020:", gd, danceave, energyave, liveave, tempoave, adav))
 
     print(sumli)
     conn.commit()
