@@ -13,6 +13,7 @@ def run(link):
 
 def main():
 
+    # Creates census database and provides column labels
     conn = sqlite3.connect('census.db')
     cur = conn.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS census2000 ('State_Name' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT)")
@@ -67,6 +68,7 @@ def main():
         for d in resp2020[1:]:
             cur.execute('INSERT INTO census2020 (State_Name, White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces) VALUES (?,?,?,?,?,?,?,?)', (d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7]))
 
+        # All Below calculations aggregate population totals by race from census.db -- census2000
         total_White_2000 = 0
 
         for d in resp2000[1:]:
@@ -102,7 +104,7 @@ def main():
         for d in resp2000[1:]:
             total_TwoOrMoreRaces_2000 = total_TwoOrMoreRaces_2000 + int(d[7])
 
-        ###
+        # All Below calculations aggregate population totals by race from census.db -- census2010
 
         total_White_2010 = 0
 
@@ -139,7 +141,7 @@ def main():
         for d in resp2010[1:]:
             total_TwoOrMoreRaces_2010 = total_TwoOrMoreRaces_2010 + int(d[7])
 
-        ###
+        # All Below calculations aggregate population totals by race from census.db -- census2020
 
         total_White_2020 = 0
 
@@ -176,12 +178,14 @@ def main():
         for d in resp2020[1:]:
             total_TwoOrMoreRaces_2020 = total_TwoOrMoreRaces_2020 + int(d[7])
 
+        
+        # Inserts total population data tables into census.db
         cur.execute("DROP TABLE IF EXISTS censustotal2000")
-        cur.execute("CREATE TABLE censustotal2000 ('Year' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT, 'Total' TEXT)")
+        cur.execute("CREATE TABLE censustotal2000 ('Year' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT)")
         cur.execute("DROP TABLE IF EXISTS censustotal2010")
-        cur.execute("CREATE TABLE censustotal2010 ('Year' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT, 'Total' TEXT)")
+        cur.execute("CREATE TABLE censustotal2010 ('Year' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT)")
         cur.execute("DROP TABLE IF EXISTS censustotal2020")
-        cur.execute("CREATE TABLE censustotal2020 ('Year' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT, 'Total' TEXT)")
+        cur.execute("CREATE TABLE censustotal2020 ('Year' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT)")
 
 
         cur.execute('INSERT INTO censustotal2000 (Year, White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces) VALUES (?,?,?,?,?,?,?,?)', ('2000', total_White_2000, total_AfricanAmerican_2000, total_AmericanIndianAlaska_2000, total_Asian_2000, total_HawaiianOtherPacificIslander_2000, total_HispanicLatino_2000, total_TwoOrMoreRaces_2000))
@@ -191,7 +195,7 @@ def main():
 
         conn.commit()
 
-        ### Total White Over Time
+        ### Total White Population Over Time
         
         cur.execute('SELECT SUM(White) FROM census2000')
         White2000 = cur.fetchall()
@@ -405,47 +409,31 @@ def main():
         TwoOrMoreRacesPercentage2020 = totalTwoOrMoreRaces2020 / totalPopulation2020
         #print(TwoOrMoreRacesPercentage2020)
 
-
         #### MatPlot Visualizations
 
         import matplotlib.pyplot as plt
         import numpy as np
-
-        # Pie Chart 2000
         
-        labels = 'White', 'AfricanAmerican', 'American Indian / Alaska', 'Asian', 'Hawaiian / Other Pacific Islander', 'Hispanic or Latino', 'Two or More Races'
-        sizes = [whitePercentage2000, africanamericanPercentage2000, AmericanIndianAlaskaPercentage2000, AsianPercentage2000, HawaiianOtherPacificIslanderPercentage2000, HispanicLatinoPercentage2000, TwoOrMoreRacesPercentage2000]
-        colors = ['blue', 'yellow', 'green', 'brown', 'purple', 'orange', 'violet']
+        AfricanAmerican = np.array([.11, .11, .11])
+        HispanicLatinoy1 = np.array([.13, .16, .18])
+        TwoOrMoreRacesy2 = np.array([.02, .028, .096])
+        Whitey3 = np.array([.67, .63, .53])
+        Other = np.array([.07, .072, .084])
+        years = ["2000", "2010", "2020"]
 
-        plt.pie(sizes, labels=labels, colors=colors, autopct = '%50.0f%%', shadow=False, startangle=140)
+        plt.title("US Population Diversity by Race Over Time")
+        plt.xlabel("Year")
+        plt.ylabel("Percentage")
 
-        plt.axis('equal')
-        #plt.show()
+        plt.plot(years, Whitey3, "-b", label = "White")
+        plt.plot(years, TwoOrMoreRacesy2, "-g", label = "Two Or More Races")
+        plt.plot(years, HispanicLatinoy1, "-r", label = "Hispanic or Latino")
+        plt.plot(years, AfricanAmerican, "-y", label = "Black or African American")
+        plt.plot(years, Other, "-o", label = "Other")
 
-        # Pie Chart 2010
+        plt.legend(loc="upper right")
 
-        labels = 'White', 'AfricanAmerican', 'American Indian / Alaska', 'Asian', 'Hawaiian / Other Pacific Islander', 'Hispanic or Latino', 'Two or More Races'
-        sizes = [whitePercentage2000, africanamericanPercentage2000, AmericanIndianAlaskaPercentage2000, AsianPercentage2000, HawaiianOtherPacificIslanderPercentage2000, HispanicLatinoPercentage2000, TwoOrMoreRacesPercentage2000]
-        colors = ['blue', 'yellow', 'green', 'brown', 'purple', 'orange', 'violet']
-
-        plt.pie(sizes, labels=labels, colors=colors, autopct = '%50.0f%%', shadow=False, startangle=140)
-
-        plt.axis('equal')
-        #plt.show()
-
-        # Pie Chart 2020
-        
-        labels = 'White', 'AfricanAmerican', 'American Indian / Alaska', 'Asian', 'Hawaiian / Other Pacific Islander', 'Hispanic or Latino', 'Two or More Races'
-        sizes = [whitePercentage2000, africanamericanPercentage2000, AmericanIndianAlaskaPercentage2000, AsianPercentage2000, HawaiianOtherPacificIslanderPercentage2000, HispanicLatinoPercentage2000, TwoOrMoreRacesPercentage2000]
-        colors = ['blue', 'yellow', 'green', 'brown', 'purple', 'orange', 'violet']
-
-        plt.pie(sizes, labels=labels, colors=colors, autopct = '%0.0f%%', shadow=False, startangle=360)
-
-        matplotlib.pyplot.legend()
-
-        plt.axis('equal')
-        #plt.show()
-
+        plt.show()
 
 if __name__ == "__main__":
     main()
