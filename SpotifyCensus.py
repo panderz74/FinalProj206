@@ -39,12 +39,12 @@ def getsongs(pl):
     return newli
 
 #takes dictionary of artists and song names and searches spotify for them, returning a list of dictionaries for each song with id, track, artist, and genres. 
-def get_info(d):
+def get_info(d, limit=25, offset=0):
     queries =[]
     for key in d:
         queries.append(d[key]["song_name"] + " " + d[key]["artist"])
     listinfo = []
-    for q in queries:
+    for q in queries[offset:offset+25]:
         songdict = {}
         qres = sp.search(q)
         track = qres["tracks"]["items"][0]
@@ -54,6 +54,7 @@ def get_info(d):
         songdict["artist"] = artist["name"]
         songdict["genres"] = artist["genres"]
         listinfo.append(songdict)
+
     return listinfo
 
 #take a list of dictionaries with info, returns audio features of each track in a list
@@ -91,34 +92,45 @@ def main():
     conn = sqlite3.connect('charts.db')
     cur = conn.cursor()
     
-    cur.execute("DROP TABLE IF EXISTS wiki2000")
-    cur.execute("CREATE TABLE wiki2000 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
+    #cur.execute("DROP TABLE IF EXISTS wiki2000")
+    cur.execute("CREATE TABLE IF NOT EXISTS wiki2000 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
     wiki2000 = scrape_top_music(2000)
     for num in wiki2000:
-        cur.execute('INSERT INTO wiki2000 (track, artist) VALUES (?,?)', (wiki2000[num]['song_name'], wiki2000[num]['artist']))
+        cur.execute('INSERT OR IGNORE INTO wiki2000 (track, artist) VALUES (?,?)', (wiki2000[num]['song_name'], wiki2000[num]['artist']))
     
-    cur.execute("DROP TABLE IF EXISTS wiki2010")
-    cur.execute("CREATE TABLE wiki2010 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
+    #cur.execute("DROP TABLE IF EXISTS wiki2010")
+    cur.execute("CREATE TABLE IF NOT EXISTS wiki2010 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
     wiki2010 = scrape_top_music(2010)
     for num in wiki2010:
-        cur.execute('INSERT INTO wiki2010 (track, artist) VALUES (?,?)', (wiki2010[num]['song_name'], wiki2010[num]['artist']))
+        cur.execute('INSERT OR IGNORE INTO wiki2010 (track, artist) VALUES (?,?)', (wiki2010[num]['song_name'], wiki2010[num]['artist']))
     
-    cur.execute("DROP TABLE IF EXISTS wiki2020")
-    cur.execute("CREATE TABLE wiki2020 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
+    #cur.execute("DROP TABLE IF EXISTS wiki2020")
+    cur.execute("CREATE TABLE IF NOT EXISTS wiki2020 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
     wiki2020 = scrape_top_music(2020)
     for num in wiki2020:
-        cur.execute('INSERT INTO wiki2020 (track, artist) VALUES (?,?)', (wiki2020[num]['song_name'], wiki2020[num]['artist']))
+        cur.execute('INSERT OR IGNORE INTO wiki2020 (track, artist) VALUES (?,?)', (wiki2020[num]['song_name'], wiki2020[num]['artist']))
 
     #making the tables with spotify info 
-    cur.execute("DROP TABLE IF EXISTS billboard2000")
-    cur.execute("CREATE TABLE billboard2000 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
-    cur.execute("DROP TABLE IF EXISTS billboard2010")
-    cur.execute("CREATE TABLE billboard2010 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
-    cur.execute("DROP TABLE IF EXISTS billboard2020")
-    cur.execute("CREATE TABLE billboard2020 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
-    top2000 = get_info(wiki2000)
-    top2010 = get_info(wiki2010)
-    top2020 = get_info(wiki2020)
+    #cur.execute("DROP TABLE IF EXISTS billboard2000")
+    cur.execute("CREATE TABLE IF NOT EXISTS billboard2000 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
+    #cur.execute("DROP TABLE IF EXISTS billboard2010")
+    cur.execute("CREATE TABLE IF NOT EXISTS billboard2010 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
+    #cur.execute("DROP TABLE IF EXISTS billboard2020")
+    cur.execute("CREATE TABLE IF NOT EXISTS billboard2020 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
+    
+    cur.execute("SELECT COUNT('id') FROM billboard2000")
+    count2000 = cur.fetchall()
+    top2000 = get_info(wiki2000, 25, int(count2000[0][0]))
+    print(top2000)
+
+    cur.execute("SELECT COUNT('id') FROM billboard2010")
+    count2010 = cur.fetchall()
+    top2010 = get_info(wiki2010, 25, int(count2010[0][0]))
+
+    cur.execute("SELECT COUNT('id') FROM billboard2020")
+    count2020 = cur.fetchall()
+    top2020 = get_info(wiki2020, 25, int(count2020[0][0]))
+
     for d in top2000:
         gs = ""
         for genre in d["genres"]:
@@ -142,18 +154,18 @@ def main():
     audio2000 = get_audio_info(top2000)
     audio2010 = get_audio_info(top2010)
     audio2020 = get_audio_info(top2020)
-    cur.execute("DROP TABLE IF EXISTS audio2000")
-    cur.execute("CREATE TABLE audio2000 ('id' TEXT PRIMARY KEY, 'danceability' REAL, 'energy' REAL, 'liveness' REAL, 'tempo' REAL)")
+    #cur.execute("DROP TABLE IF EXISTS audio2000")
+    cur.execute("CREATE TABLE IF NOT EXISTS audio2000 ('id' TEXT PRIMARY KEY, 'danceability' REAL, 'energy' REAL, 'liveness' REAL, 'tempo' REAL)")
     for d in audio2000:
         d = d[0]
         cur.execute('INSERT INTO audio2000 (id, danceability, energy, liveness, tempo) VALUES (?,?,?,?,?)', (d['id'], d['danceability'], d['energy'], d['liveness'], d['tempo']))
-    cur.execute("DROP TABLE IF EXISTS audio2010")
-    cur.execute("CREATE TABLE audio2010 ('id' TEXT PRIMARY KEY, 'danceability' REAL, 'energy' REAL, 'liveness' REAL, 'tempo' REAL)")
+    #cur.execute("DROP TABLE IF EXISTS audio2010")
+    cur.execute("CREATE TABLE IF NOT EXISTS audio2010 ('id' TEXT PRIMARY KEY, 'danceability' REAL, 'energy' REAL, 'liveness' REAL, 'tempo' REAL)")
     for d in audio2010:
         d = d[0]
         cur.execute('INSERT INTO audio2010 (id, danceability, energy, liveness, tempo) VALUES (?,?,?,?,?)', (d['id'], d['danceability'], d['energy'], d['liveness'], d['tempo']))
-    cur.execute("DROP TABLE IF EXISTS audio2020")
-    cur.execute("CREATE TABLE audio2020 ('id' TEXT PRIMARY KEY, 'danceability' REAL, 'energy' REAL, 'liveness' REAL, 'tempo' REAL)")
+    #cur.execute("DROP TABLE IF EXISTS audio2020")
+    cur.execute("CREATE TABLE IF NOT EXISTS audio2020 ('id' TEXT PRIMARY KEY, 'danceability' REAL, 'energy' REAL, 'liveness' REAL, 'tempo' REAL)")
     for d in audio2020:
         d = d[0]
         cur.execute('INSERT INTO audio2020 (id, danceability, energy, liveness, tempo) VALUES (?,?,?,?,?)', (d['id'], d['danceability'], d['energy'], d['liveness'], d['tempo']))
