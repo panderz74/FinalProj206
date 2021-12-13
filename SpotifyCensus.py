@@ -1,14 +1,15 @@
-import json
-import unittest
-import os
+#SpotifyCensus project
+#Team members: Anders Lundin, Nathan Witt, Ryan Horlick
+
 import requests
 import spotipy
 import spotipy.oauth2 as oauth2
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.oauth2 import SpotifyClientCredentials
-import random
 from bs4 import BeautifulSoup
 import sqlite3
+import matplotlib.pyplot as plt
+import numpy as np
 
 CLIENT_ID = '3d63895403d14aa7833edba57df85660'
 CLIENT_SECRET = '1dd33174539444ec9046878a0368ec87'
@@ -79,30 +80,29 @@ def main():
     conn = sqlite3.connect('charts.db')
     cur = conn.cursor()
     
-    #cur.execute("DROP TABLE IF EXISTS wiki2000")
     cur.execute("CREATE TABLE IF NOT EXISTS wiki2000 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
     wiki2000 = scrape_top_music(2000)
     for num in wiki2000:
         cur.execute('INSERT OR IGNORE INTO wiki2000 (track, artist) VALUES (?,?)', (wiki2000[num]['song_name'], wiki2000[num]['artist']))
     
-    #cur.execute("DROP TABLE IF EXISTS wiki2010")
+
     cur.execute("CREATE TABLE IF NOT EXISTS wiki2010 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
     wiki2010 = scrape_top_music(2010)
     for num in wiki2010:
         cur.execute('INSERT OR IGNORE INTO wiki2010 (track, artist) VALUES (?,?)', (wiki2010[num]['song_name'], wiki2010[num]['artist']))
     
-    #cur.execute("DROP TABLE IF EXISTS wiki2020")
+
     cur.execute("CREATE TABLE IF NOT EXISTS wiki2020 ('track' TEXT PRIMARY KEY, 'artist' TEXT)")
     wiki2020 = scrape_top_music(2020)
     for num in wiki2020:
         cur.execute('INSERT OR IGNORE INTO wiki2020 (track, artist) VALUES (?,?)', (wiki2020[num]['song_name'], wiki2020[num]['artist']))
 
     #making the tables with spotify info 
-    #cur.execute("DROP TABLE IF EXISTS billboard2000")
+
     cur.execute("CREATE TABLE IF NOT EXISTS billboard2000 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
-    #cur.execute("DROP TABLE IF EXISTS billboard2010")
+
     cur.execute("CREATE TABLE IF NOT EXISTS billboard2010 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
-    #cur.execute("DROP TABLE IF EXISTS billboard2020")
+
     cur.execute("CREATE TABLE IF NOT EXISTS billboard2020 ('id' TEXT PRIMARY KEY, 'track' TEXT, 'artist' TEXT, 'genres' TEXT)")
     
     cur.execute("SELECT COUNT('id') FROM billboard2000")
@@ -112,7 +112,6 @@ def main():
         print("Spotify Scraping Complete")
     else:
         top2000 = get_info(wiki2000, 25, int(count2000[0][0]))
-        print(top2000)
 
         cur.execute("SELECT COUNT('id') FROM billboard2010")
         count2010 = cur.fetchall()
@@ -145,17 +144,17 @@ def main():
         audio2000 = get_audio_info(top2000)
         audio2010 = get_audio_info(top2010)
         audio2020 = get_audio_info(top2020)
-        #cur.execute("DROP TABLE IF EXISTS audio2000")
+
         cur.execute("CREATE TABLE IF NOT EXISTS audio2000 ('id' TEXT PRIMARY KEY, 'danceability' REAL, 'energy' REAL, 'liveness' REAL, 'tempo' REAL)")
         for d in audio2000:
             d = d[0]
             cur.execute('INSERT INTO audio2000 (id, danceability, energy, liveness, tempo) VALUES (?,?,?,?,?)', (d['id'], d['danceability'], d['energy'], d['liveness'], d['tempo']))
-        #cur.execute("DROP TABLE IF EXISTS audio2010")
+
         cur.execute("CREATE TABLE IF NOT EXISTS audio2010 ('id' TEXT PRIMARY KEY, 'danceability' REAL, 'energy' REAL, 'liveness' REAL, 'tempo' REAL)")
         for d in audio2010:
             d = d[0]
             cur.execute('INSERT INTO audio2010 (id, danceability, energy, liveness, tempo) VALUES (?,?,?,?,?)', (d['id'], d['danceability'], d['energy'], d['liveness'], d['tempo']))
-        #cur.execute("DROP TABLE IF EXISTS audio2020")
+
         cur.execute("CREATE TABLE IF NOT EXISTS audio2020 ('id' TEXT PRIMARY KEY, 'danceability' REAL, 'energy' REAL, 'liveness' REAL, 'tempo' REAL)")
         for d in audio2020:
             d = d[0]
@@ -287,9 +286,117 @@ def main():
                 adav[num] = 0
             adav[num] += 1
         sumli.append(("sum2020:", gd, danceave, energyave, liveave, tempoave, adav))
-
-        print(sumli)
         conn.commit()
+        
+        #--VISUALIZATIONS--
+        # audio analyses line chart
+        danceabilities = [sumli[0][2], sumli[1][2], sumli[2][2]]
+        energies = [sumli[0][3], sumli[1][3], sumli[2][3]]
+        livenesses = [sumli[0][4], sumli[1][4], sumli[2][4]]
+        years = ["2000", "2010", "2020"]
 
+        plt.title("Average audio analyses over time")
+        plt.xlabel("Year")
+        plt.ylabel("Amount from 0-1")
+
+
+        x1 = np.array(years)
+        y1 = np.array(danceabilities)
+        x2 = np.array(years)
+        y2 = np.array(energies)
+        x3 = np.array(years)
+        y3 = np.array(livenesses)
+
+        plt.plot(x1, y1, "-b", label="danceability")
+        plt.plot(x2, y2, "-r", label="energy")
+        plt.plot(x3, y3, "-g", label="liveness")
+        
+        plt.legend(loc="upper right")
+        plt.show()
+        
+        #making the pie charts for genre distribution
+        notshownsums = []
+        shownlens = []
+        genretotals = []
+        disp =[]
+        allsums =[]
+        for tup in sumli:
+            total = 0
+            totalall = 0
+            gens = list(tup[1].items())
+            genretotals.append(len(gens))
+            displayed = gens[:11]
+            disp.append(displayed)
+            summed = gens[11:]
+            shownlen = len(gens)
+            shownlens.append(shownlen)
+            for tup in gens:
+                totalall += tup[1]
+            for tup in summed:
+                total += tup[1]
+            notshownsums.append(total)
+            allsums.append(totalall)
+
+        disp2000 = dict(disp[0])
+        mylabels = list(disp2000.keys())
+        total = 0
+        for num in disp2000.values():
+            total += num
+        percent2000 = []
+        for num in disp2000.values():
+            percent2000.append(num/total)
+        y = np.array(percent2000)
+        plt.pie(y, labels = mylabels)
+        plt.suptitle("% make up of top 10 genres in 2000")
+        plt.title("Total genres: " + str(shownlens[0]) + ", Total % makeup of not shown genres: " + (str(notshownsums[0] / allsums[0]))[2:4] + "%")
+        plt.show()
+
+        disp2010 = dict(disp[1])
+        mylabels = list(disp2010.keys())
+        total = 0
+        for num in disp2010.values():
+            total += num
+        percent2010 = []
+        for num in disp2010.values():
+            percent2010.append(num/total)
+        y = np.array(percent2010)
+        plt.pie(y, labels = mylabels)
+        plt.suptitle("% make up of top 10 genres in 2010")
+        plt.title("Total genres: " + str(shownlens[1]) + ", Total % makeup of not shown genres: " + (str(notshownsums[1] / allsums[1]))[2:4] + "%")
+        plt.show()
+
+        disp2020 = dict(disp[2])
+        mylabels = list(disp2020.keys())
+        total = 0
+        for num in disp2020.values():
+            total += num
+        percent2020 = []
+        for num in disp2020.values():
+            percent2020.append(num/total)
+        y = np.array(percent2020)
+        plt.pie(y, labels = mylabels)
+        plt.suptitle("% make up of top 10 genres in 2020")
+        plt.title("Total genres: " + str(shownlens[2]) + ", Total % makeup of not shown genres: " + (str(notshownsums[2] / allsums[2]))[2:4] + "%")
+        plt.show()
+
+        #making bar charts for the frequency of appearances in the top 100
+        y = 0
+        years = ["2000", "2010", "2020"]
+        for year in years:
+            plt.style.use('ggplot')
+
+            x = list((sumli[y][-1]).keys())
+            energy = list((sumli[y][-1]).values())
+
+            x_pos = [i for i, _ in enumerate(x)]
+
+            plt.bar(x_pos, energy, color='green')
+            plt.xlabel("#of times artist appeared")
+            plt.ylabel("#of occurences")
+            plt.title("Number of times artists appeared x number of times in " + year)
+
+            plt.xticks(x_pos, x)
+            y += 1
+            plt.show()
 if __name__ == "__main__":
     main()

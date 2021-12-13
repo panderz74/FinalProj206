@@ -14,7 +14,7 @@ def run(link):
 def main():
 
     # Creates census database and provides column labels
-    conn = sqlite3.connect('census.db')
+    conn = sqlite3.connect('charts.db')
     cur = conn.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS census2000 ('State_Name' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS census2010 ('State_Name' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT)")
