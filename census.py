@@ -11,6 +11,32 @@ def run(link):
     resp = requests.get(link)
     return ast.literal_eval(resp.text)
 
+def viz():
+    #### MatPlot Visualizations
+    import matplotlib.pyplot as plt
+    import numpy as np
+    
+    AfricanAmerican = np.array([.11, .11, .11])
+    HispanicLatinoy1 = np.array([.13, .16, .18])
+    TwoOrMoreRacesy2 = np.array([.02, .028, .096])
+    Whitey3 = np.array([.67, .63, .53])
+    Other = np.array([.07, .072, .084])
+    years = ["2000", "2010", "2020"]
+
+    plt.title("US Population Diversity by Race Over Time")
+    plt.xlabel("Year")
+    plt.ylabel("Percentage")
+
+    plt.plot(years, Whitey3, "-b", label = "White")
+    plt.plot(years, TwoOrMoreRacesy2, "-g", label = "Two Or More Races")
+    plt.plot(years, HispanicLatinoy1, "-r", label = "Hispanic or Latino")
+    plt.plot(years, AfricanAmerican, "-y", label = "Black or African American")
+    plt.plot(years, Other, "-o", label = "Other")
+
+    plt.legend(loc="upper right")
+
+    plt.show()
+
 def main():
 
     # Creates census database and provides column labels
@@ -31,6 +57,9 @@ def main():
     # Checks if all Census data has been gathered yet
     if count2000 >= 50:
         print("Census Scraping Complete")
+        viz()
+        
+
     else:
         # Processes the next 25 states to add from Census 2000 and runs the API
         for i in state_list[count2000:count2000+25]:
@@ -199,15 +228,12 @@ def main():
         
         cur.execute('SELECT SUM(White) FROM census2000')
         White2000 = cur.fetchall()
-        #print(White2000)
 
         cur.execute('SELECT SUM(White) FROM census2010')
         White2010 = cur.fetchall()
-        #print(White2010)
 
         cur.execute('SELECT SUM(White) FROM census2020')
         White2020 = cur.fetchall()
-        #print(White2020)
 
         ### Total AfricanAmerican Over Time
 
@@ -280,160 +306,110 @@ def main():
 
         cur.execute('SELECT White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces, White+AfricanAmerican+AmericanIndianAlaska+Asian+HawaiianOtherPacificIslander+HispanicLatino+TwoOrMoreRaces FROM censustotal2000')
         totalRaces2000 = cur.fetchall()
-        #print(totalRaces2000)
+
 
         cur.execute('SELECT White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces, White+AfricanAmerican+AmericanIndianAlaska+Asian+HawaiianOtherPacificIslander+HispanicLatino+TwoOrMoreRaces FROM censustotal2010')
         totalRaces2010 = cur.fetchall()
-        #print(totalRaces2010)
 
         cur.execute('SELECT White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces, White+AfricanAmerican+AmericanIndianAlaska+Asian+HawaiianOtherPacificIslander+HispanicLatino+TwoOrMoreRaces FROM censustotal2020')
         totalRaces2020 = cur.fetchall()
-        #print(totalRaces2020)
 
         ### White Percentage 2000-2020
-
         totalPopulation2000 = totalRaces2000[0][7]
         totalWhite2000 = White2000[0][0]
         whitePercentage2000 = totalWhite2000 / totalPopulation2000 
-        #print(whitePercentage2000)
 
         totalPopulation2010 = totalRaces2010[0][7]
         totalWhite2010 = White2010[0][0]
         whitePercentage2010 = totalWhite2010 / totalPopulation2010
-        #print(whitePercentage2010)
 
         totalPopulation2020 = totalRaces2020[0][7]
         totalWhite2020 = White2020[0][0]
         whitePercentage2020 = totalWhite2020 / totalPopulation2020
-        #print(whitePercentage2020)
 
         ### African American Percentage 2000-2020
 
         totalPopulation2000 = totalRaces2000[0][7]
         totalAfricanAmerican2000 = AfricanAmerican2000[0][0]
         africanamericanPercentage2000 = totalAfricanAmerican2000 / totalPopulation2000 
-        #print(africanamericanPercentage2000)
 
         totalPopulation2010 = totalRaces2010[0][7]
         totalAfricanAmerican2010 = AfricanAmerican2010[0][0]
         africanamericanPercentage2010 = totalAfricanAmerican2010 / totalPopulation2010
-        #print(africanamericanPercentage2010)
 
         totalPopulation2020 = totalRaces2020[0][7]
         totalAfricanAmerican2020 = AfricanAmerican2020[0][0]
         africanamericanPercentage2020 = totalAfricanAmerican2020 / totalPopulation2020
-        #print(africanamericanPercentage2020)
 
         ### AmericanIndianAlaska Percentage 2000-2020
 
         totalPopulation2000 = totalRaces2000[0][7]
         totalAmericanIndianAlaska2000 = AmericanIndianAlaska2000[0][0]
         AmericanIndianAlaskaPercentage2000 = totalAmericanIndianAlaska2000 / totalPopulation2000 
-        #print(AmericanIndianAlaskaPercentage2000)
 
         totalPopulation2010 = totalRaces2010[0][7]
         totalAmericanIndianAlaska2010 = AmericanIndianAlaska2010[0][0]
         AmericanIndianAlaskaPercentage2010 = totalAmericanIndianAlaska2010 / totalPopulation2010
-        #print(AmericanIndianAlaskaPercentage2010)
 
         totalPopulation2020 = totalRaces2020[0][7]
         totalAmericanIndianAlaska2020 = AmericanIndianAlaska2020[0][0]
         AmericanIndianAlaskaPercentage2020 = totalAmericanIndianAlaska2020 / totalPopulation2020
-        #print(AmericanIndianAlaskaPercentage2020)
 
         ### Asian Percentage 2000-2020
 
         totalPopulation2000 = totalRaces2000[0][7]
         totalAsian2000 = Asian2000[0][0]
         AsianPercentage2000 = totalAsian2000 / totalPopulation2000 
-        #print(AsianPercentage2000)
 
         totalPopulation2010 = totalRaces2010[0][7]
         totalAsian2010 = Asian2010[0][0]
         AsianPercentage2010 = totalAsian2010 / totalPopulation2010
-        #print(AsianPercentage2010)
 
         totalPopulation2020 = totalRaces2020[0][7]
         totalAsian2020 = Asian2020[0][0]
         AsianPercentage2020 = totalAsian2020 / totalPopulation2020
-        #print(AsianPercentage2020)
 
         ### HawaiianOtherPacificIslander Percentage 2000-2020
 
         totalPopulation2000 = totalRaces2000[0][7]
         totalHawaiianOtherPacificIslander2000 = HawaiianOtherPacificIslander2000[0][0]
         HawaiianOtherPacificIslanderPercentage2000 = totalHawaiianOtherPacificIslander2000 / totalPopulation2000 
-        #print(HawaiianOtherPacificIslanderPercentage2000)
 
         totalPopulation2010 = totalRaces2010[0][7]
         totalHawaiianOtherPacificIslander2010 = HawaiianOtherPacificIslander2010[0][0]
         HawaiianOtherPacificIslanderPercentage2010 = totalHawaiianOtherPacificIslander2010 / totalPopulation2010
-        #print(HawaiianOtherPacificIslanderPercentage2010)
 
         totalPopulation2020 = totalRaces2020[0][7]
         totalHawaiianOtherPacificIslander2020 = HawaiianOtherPacificIslander2020[0][0]
         HawaiianOtherPacificIslanderPercentage2020 = totalHawaiianOtherPacificIslander2020 / totalPopulation2020
-        #print(HawaiianOtherPacificIslanderPercentage2020)
 
         ### HispanicLatino Percentage 2000-2020
 
         totalPopulation2000 = totalRaces2000[0][7]
         totalHispanicLatino2000 = HispanicLatino2000[0][0]
         HispanicLatinoPercentage2000 = totalHispanicLatino2000 / totalPopulation2000 
-        #print(HispanicLatinoPercentage2000)
 
         totalPopulation2010 = totalRaces2010[0][7]
         totalHispanicLatino2010 = HispanicLatino2010[0][0]
         HispanicLatinoPercentage2010 = totalHispanicLatino2010 / totalPopulation2010
-        #print(HispanicLatinoPercentage2010)
 
         totalPopulation2020 = totalRaces2020[0][7]
         totalHispanicLatino2020 = HispanicLatino2020[0][0]
         HispanicLatinoPercentage2020 = totalHispanicLatino2020 / totalPopulation2020
-        #print(HispanicLatinoPercentage2020)
 
         ### TwoOrMoreRaces Percentage 2000-2020
 
         totalPopulation2000 = totalRaces2000[0][7]
         totalTwoOrMoreRaces2000 = TwoOrMoreRaces2000[0][0]
         TwoOrMoreRacesPercentage2000 = totalTwoOrMoreRaces2000 / totalPopulation2000 
-        #print(TwoOrMoreRacesPercentage2000)
 
         totalPopulation2010 = totalRaces2010[0][7]
         totalTwoOrMoreRaces2010 = TwoOrMoreRaces2010[0][0]
         TwoOrMoreRacesPercentage2010 = totalTwoOrMoreRaces2010 / totalPopulation2010
-        #print(TwoOrMoreRacesPercentage2010)
 
         totalPopulation2020 = totalRaces2020[0][7]
         totalTwoOrMoreRaces2020 = TwoOrMoreRaces2020[0][0]
         TwoOrMoreRacesPercentage2020 = totalTwoOrMoreRaces2020 / totalPopulation2020
-        #print(TwoOrMoreRacesPercentage2020)
-
-        #### MatPlot Visualizations
-
-        import matplotlib.pyplot as plt
-        import numpy as np
-        
-        AfricanAmerican = np.array([.11, .11, .11])
-        HispanicLatinoy1 = np.array([.13, .16, .18])
-        TwoOrMoreRacesy2 = np.array([.02, .028, .096])
-        Whitey3 = np.array([.67, .63, .53])
-        Other = np.array([.07, .072, .084])
-        years = ["2000", "2010", "2020"]
-
-        plt.title("US Population Diversity by Race Over Time")
-        plt.xlabel("Year")
-        plt.ylabel("Percentage")
-
-        plt.plot(years, Whitey3, "-b", label = "White")
-        plt.plot(years, TwoOrMoreRacesy2, "-g", label = "Two Or More Races")
-        plt.plot(years, HispanicLatinoy1, "-r", label = "Hispanic or Latino")
-        plt.plot(years, AfricanAmerican, "-y", label = "Black or African American")
-        plt.plot(years, Other, "-o", label = "Other")
-
-        plt.legend(loc="upper right")
-
-        plt.show()
 
 if __name__ == "__main__":
     main()
