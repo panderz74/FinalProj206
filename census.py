@@ -6,18 +6,15 @@ import requests
 import json
 import sqlite3
 import ast
+import matplotlib.pyplot as plt
+import numpy as np
 
 def run(link):
     resp = requests.get(link)
     return ast.literal_eval(resp.text)
 
+# Line chart demonstrating US Population Diversity by Race in years 2000, 2010, 2020
 def viz():
-    #### MatPlot Visualizations
-
-    # Line chart demonstrating US Population Diversity by Race in years 2000, 2010, 2020
-    import matplotlib.pyplot as plt
-    import numpy as np
-    
     AfricanAmerican = np.array([.11, .11, .11])
     HispanicLatinoy1 = np.array([.13, .16, .18])
     TwoOrMoreRacesy2 = np.array([.02, .028, .096])
@@ -39,9 +36,11 @@ def viz():
 
     plt.show()
 
+def viz2(pli):
+    print(pli)
     # Pie Chart demonstrating US Population Diversity Percentages by Race in 2000
     labels = 'White', 'AfricanAmerican', 'Asian', 'Hispanic or Latino', 'Two or More Races', 'Other'
-    sizes = [.67, .114, .03, .13, .02, 0.00922144568]
+    sizes = [pli[0][0], pli[0][1], pli[0][3], pli[0][5], pli[0][6], (pli[0][2] + pli[0][4])]
     colors = ['blue', 'yellow', 'green', 'brown', 'purple', 'orange']
 
     plt.suptitle("US Population Diversity by Race in 2000")
@@ -54,7 +53,7 @@ def viz():
 
     # Pie Chart demonstrating US Population Diversity Percentages by Race in 2010
     labels = 'White', 'AfricanAmerican', 'Asian', 'Hispanic or Latino', 'Two or More Races', 'Other'
-    sizes = [.63, .117, .05, .16, .028, 0.0096857384]
+    sizes = [pli[1][0], pli[1][1], pli[1][3], pli[1][5], pli[1][6], (pli[1][2] + pli[1][4])]
     colors = ['blue', 'yellow', 'green', 'brown', 'purple', 'orange']
 
     plt.suptitle("US Population Diversity by Race in 2010")
@@ -67,7 +66,7 @@ def viz():
 
     # Pie Chart demonstrating US Population Diversity Percentages by Race in 2020
     labels = 'White', 'AfricanAmerican', 'Asian', 'Hispanic or Latino', 'Two or More Races', 'Other'
-    sizes = [.53, .116, .061, .18, .096, 0.0119475867]
+    sizes = [pli[2][0], pli[2][1], pli[2][3], pli[2][5], pli[2][6], (pli[2][2] + pli[2][4])]
     colors = ['blue', 'yellow', 'green', 'brown', 'purple', 'orange']
 
     plt.suptitle("US Population Diversity by Race in 2020")
@@ -78,9 +77,232 @@ def viz():
     plt.axis('equal')
     plt.show()
 
-    return 
+def write_file():
+    d2000 = {}
+    d2010 = {}
+    d2020 = {}
+    conn = sqlite3.connect('charts.db')
+    cur = conn.cursor()
+    # Total White Population Over Time
+    
+    cur.execute('SELECT SUM (White) FROM census2000')
+    white2000 = cur.fetchall()
+    d2000["White2000"] = white2000[0][0]
+
+    cur.execute('SELECT SUM(White) FROM census2010')
+    white2010 = cur.fetchall()
+    d2010["White2010"] = white2010[0][0]
+
+    cur.execute('SELECT SUM(White) FROM census2020')
+    white2020 = cur.fetchall()
+    d2020["White2020"] = white2020[0][0]
+
+    # Total AfricanAmerican Population Over Time
+
+    cur.execute('SELECT SUM(AfricanAmerican) FROM census2000')
+    africanAmerican2000 = cur.fetchall()
+    d2000["AfricanAmerican2000"] = africanAmerican2000[0][0]
+
+    cur.execute('SELECT SUM(AfricanAmerican) FROM census2010')
+    africanAmerican2010 = cur.fetchall()
+    d2010["AfricanAmerican2010"] = africanAmerican2010[0][0]
+
+    cur.execute('SELECT SUM(AfricanAmerican) FROM census2020')
+    africanAmerican2020 = cur.fetchall()
+    d2020["AfricanAmerican2020"] = africanAmerican2020[0][0]
+
+    # Total AmericanIndianAlaska Population Over Time
+
+    cur.execute('SELECT SUM(AmericanIndianAlaska) FROM census2000')
+    americanIndianAlaska2000 = cur.fetchall()
+    d2000["AmericanIndianAlaska2000"] = americanIndianAlaska2000[0][0]
+
+    cur.execute('SELECT SUM(AmericanIndianAlaska) FROM census2010')
+    americanIndianAlaska2010 = cur.fetchall()
+    d2010["AmericanIndianAlaska2010"] = americanIndianAlaska2010[0][0]
+
+    cur.execute('SELECT SUM(AmericanIndianAlaska) FROM census2020')
+    americanIndianAlaska2020 = cur.fetchall()
+    d2020["AmericanIndianAlaska2020"] = americanIndianAlaska2020[0][0]
+
+    # Total Asian Population Over Time
+
+    cur.execute('SELECT SUM(Asian) FROM census2000')
+    asian2000 = cur.fetchall()
+    d2000["Asian2000"] = asian2000[0][0]
+
+    cur.execute('SELECT SUM(Asian) FROM census2010')
+    asian2010 = cur.fetchall()
+    d2010["Asian2010"] = asian2010[0][0]
+
+    cur.execute('SELECT SUM(Asian) FROM census2020')
+    asian2020 = cur.fetchall()
+    d2020["Asian2020"] = asian2020[0][0]
+
+    # Total HawaiianOtherPacificIslander Population Over Time
+
+    cur.execute('SELECT SUM(HawaiianOtherPacificIslander) FROM census2000')
+    hawaiianOtherPacificIslander2000 = cur.fetchall()
+    d2000["HawaiianOtherPacificIslander2000"] = hawaiianOtherPacificIslander2000[0][0]
+
+    cur.execute('SELECT SUM(HawaiianOtherPacificIslander) FROM census2010')
+    hawaiianOtherPacificIslander2010 = cur.fetchall()
+    d2010["HawaiianOtherPacificIslander2010"] = hawaiianOtherPacificIslander2010[0][0]
+
+    cur.execute('SELECT SUM(HawaiianOtherPacificIslander) FROM census2020')
+    hawaiianOtherPacificIslander2020 = cur.fetchall()
+    d2020["HawaiianOtherPacificIslander2020"] = hawaiianOtherPacificIslander2020[0][0]
+
+    # Total HispanicLatino Population Over Time
+
+    cur.execute('SELECT SUM(HispanicLatino) FROM census2000')
+    hispanicLatino2000 = cur.fetchall()
+    d2000["HispanicLatino2000"] = hispanicLatino2000[0][0]
+
+    cur.execute('SELECT SUM(HispanicLatino) FROM census2010')
+    hispanicLatino2010 = cur.fetchall()
+    d2010["HispanicLatino2010"] = hispanicLatino2010[0][0]
+
+    cur.execute('SELECT SUM(HispanicLatino) FROM census2020')
+    hispanicLatino2020 = cur.fetchall()
+    d2020["HispanicLatino2020"] = hispanicLatino2020[0][0]
+
+    # Total TwoOrMoreRaces Population Over Time
+
+    cur.execute('SELECT SUM(TwoOrMoreRaces) FROM census2000')
+    twoOrMoreRaces2000 = cur.fetchall()
+    d2000["TwoOrMoreRaces2000"] = twoOrMoreRaces2000[0][0]
+
+    cur.execute('SELECT SUM(TwoOrMoreRaces) FROM census2010')
+    twoOrMoreRaces2010 = cur.fetchall()
+    d2010["TwoOrMoreRaces2010"] = twoOrMoreRaces2010[0][0]
+
+    cur.execute('SELECT SUM(TwoOrMoreRaces) FROM census2020')
+    twoOrMoreRaces2020 = cur.fetchall()
+    d2020["TwoOrMoreRaces2020"] = twoOrMoreRaces2020[0][0]
+
+    tot_pops =[d2000, d2010, d2020]
+
+    f= open("documentation.txt", "+a")
+    f.write("\n\n\nPopulation Totals for 2000:\n")
+    f.write("Total White Population: " + str(white2000[0][0]) + "\n")
+    f.write("Total African American Population: " + str(africanAmerican2000[0][0]) + "\n")
+    f.write("Total American Indian Alaskan Population: " + str(americanIndianAlaska2000[0][0]) + "\n")
+    f.write("Total Asian Population: " + str(asian2000[0][0]) + "\n")
+    f.write("Total Hawaiian and Other Pacific Islander Population: " + str(hawaiianOtherPacificIslander2000[0][0]) + "\n")
+    f.write("Total Hispanic / Latino Population: " + str(hispanicLatino2000[0][0]) + "\n")
+    f.write("Total Two or More Races Population: " + str(twoOrMoreRaces2000[0][0]) + "\n")
+
+    f.write("\n\nPopulation Totals for 2010:\n")
+    f.write("Total White Population: " + str(white2010[0][0]) + "\n")
+    f.write("Total African American Population: " + str(africanAmerican2010[0][0]) + "\n")
+    f.write("Total American Indian Alaskan Population: " + str(americanIndianAlaska2010[0][0]) + "\n")
+    f.write("Total Asian Population: " + str(asian2010[0][0]) + "\n")
+    f.write("Total Hawaiian and Other Pacific Islander Population: " + str(hawaiianOtherPacificIslander2010[0][0]) + "\n")
+    f.write("Total Hispanic / Latino Population: " + str(hispanicLatino2010[0][0]) + "\n")
+    f.write("Total Two or More Races Population: " + str(twoOrMoreRaces2010[0][0]) + "\n")
+
+    f.write("\n\nPopulation Totals for 2020:\n")
+    f.write("Total White Population: " + str(white2020[0][0]) + "\n")
+    f.write("Total African American Population: " + str(africanAmerican2020[0][0]) + "\n")
+    f.write("Total American Indian Alaskan Population: " + str(americanIndianAlaska2020[0][0]) + "\n")
+    f.write("Total Asian Population: " + str(asian2020[0][0]) + "\n")
+    f.write("Total Hawaiian and Other Pacific Islander Population: " + str(hawaiianOtherPacificIslander2020[0][0]) + "\n")
+    f.write("Total Hispanic / Latino Population: " + str(hispanicLatino2020[0][0]) + "\n")
+    f.write("Total Two or More Races Population: " + str(twoOrMoreRaces2020[0][0]) + "\n")
+
+    f.close()
+    conn.commit()
+
+    return(tot_pops)
+
+
+def writepercents(totli):
+    conn = sqlite3.connect('charts.db')
+    cur = conn.cursor()
+
+    totalPopulation2000 = 0
+    totalPopulation2010 = 0
+    totalPopulation2020 = 0
+    for num in totli[0].values():
+        totalPopulation2000 += num
+    
+    for num in totli[1].values():
+        totalPopulation2010 += num
+
+    for num in totli[2].values():
+        totalPopulation2020 += num
+    
+    # White Percentage of the US Population 2000-2020
+
+    whitePercentage2000 = totli[0]["White2000"] / totalPopulation2000 
+    whitePercentage2010 = totli[1]["White2010"] / totalPopulation2010
+    whitePercentage2020 = totli[2]["White2020"] / totalPopulation2020
+
+    # African American Percentage of the US Population 2000-2020
+    africanamericanPercentage2000 = totli[0]["AfricanAmerican2000"] / totalPopulation2000 
+    africanamericanPercentage2010 = totli[1]["AfricanAmerican2010"] / totalPopulation2010
+    africanamericanPercentage2020 = totli[2]["AfricanAmerican2020"] / totalPopulation2020
+
+    # AmericanIndianAlaska Percentage of the US Population 2000-2020
+    americanIndianAlaskaPercentage2000 = totli[0]["AmericanIndianAlaska2000"] / totalPopulation2000 
+    americanIndianAlaskaPercentage2010 = totli[1]["AmericanIndianAlaska2010"] / totalPopulation2010
+    americanIndianAlaskaPercentage2020 = totli[2]["AmericanIndianAlaska2020"] / totalPopulation2020
+
+    # Asian Percentage of the US Population 2000-2020
+    asianPercentage2000 = totli[0]["Asian2000"] / totalPopulation2000 
+    asianPercentage2010 = totli[1]["Asian2010"] / totalPopulation2010
+    asianPercentage2020 = totli[2]["Asian2020"] / totalPopulation2020
+
+    # HawaiianOtherPacificIslander Percentage of the US Population 2000-2020
+    hawaiianOtherPacificIslanderPercentage2000 = totli[0]["HawaiianOtherPacificIslander2000"] / totalPopulation2000 
+    hawaiianOtherPacificIslanderPercentage2010 = totli[1]["HawaiianOtherPacificIslander2010"] / totalPopulation2010
+    hawaiianOtherPacificIslanderPercentage2020 = totli[2]["HawaiianOtherPacificIslander2020"] / totalPopulation2020
+
+    # HispanicLatino Percentage of the US Population 2000-2020
+    hispanicLatinoPercentage2000 = totli[0]["HispanicLatino2000"] / totalPopulation2000 
+    hispanicLatinoPercentage2010 = totli[1]["HispanicLatino2010"] / totalPopulation2010
+    hispanicLatinoPercentage2020 = totli[2]["HispanicLatino2020"] / totalPopulation2020
+
+    # TwoOrMoreRaces Percentage of the US Population 2000-2020
+    twoOrMoreRacesPercentage2000 = totli[0]["TwoOrMoreRaces2000"] / totalPopulation2000 
+    twoOrMoreRacesPercentage2010 = totli[1]["TwoOrMoreRaces2010"] / totalPopulation2010
+    twoOrMoreRacesPercentage2020 = totli[2]["TwoOrMoreRaces2020"] / totalPopulation2020
+
+    p2000 = [whitePercentage2000, africanamericanPercentage2000, americanIndianAlaskaPercentage2000, asianPercentage2000, hawaiianOtherPacificIslanderPercentage2000, hispanicLatinoPercentage2000, twoOrMoreRacesPercentage2000]
+    p2010 = [whitePercentage2010, africanamericanPercentage2010, americanIndianAlaskaPercentage2010, asianPercentage2010, hawaiianOtherPacificIslanderPercentage2010, hispanicLatinoPercentage2010, twoOrMoreRacesPercentage2010]
+    p2020 = [whitePercentage2020, africanamericanPercentage2020, americanIndianAlaskaPercentage2020, asianPercentage2020, hawaiianOtherPacificIslanderPercentage2020, hispanicLatinoPercentage2020, twoOrMoreRacesPercentage2020]
+
+    f = open("documentation.txt", "a+")
+    f.write("\n\nTotal percent makeup of each race by year: \n")
+    f.write("White 2000: " + str(whitePercentage2000) + "\n")
+    f.write("White 2010: " + str(whitePercentage2010) + "\n")
+    f.write("White 2020: " + str(whitePercentage2020) + "\n")
+    f.write("African American 2000: " + str(africanamericanPercentage2000) + "\n")
+    f.write("African American 2010: " + str(africanamericanPercentage2010) + "\n")
+    f.write("African American 2020: " + str(africanamericanPercentage2020) + "\n")
+    f.write("American Indian Alaska 2000: " + str(americanIndianAlaskaPercentage2000) + "\n")
+    f.write("American Indian Alaska 2010: " + str(americanIndianAlaskaPercentage2010) + "\n")
+    f.write("American Indian Alaska 2020: " + str(americanIndianAlaskaPercentage2020) + "\n")
+    f.write("Asian 2000: " + str(asianPercentage2000) + "\n")
+    f.write("Asian 2010: " + str(asianPercentage2010) + "\n")
+    f.write("Asian 2020: " + str(asianPercentage2020) + "\n")
+    f.write("Hawaiian / Other Pacific Islanders 2000: " + str(hawaiianOtherPacificIslanderPercentage2000) + "\n")
+    f.write("Hawaiian / Other Pacific Islanders 2010: " + str(hawaiianOtherPacificIslanderPercentage2010) + "\n")
+    f.write("Hawaiian / Other Pacific Islanders 2020: " + str(hawaiianOtherPacificIslanderPercentage2020) + "\n")
+    f.write("Hispanic / Latino 2000: " + str(hispanicLatinoPercentage2000) + "\n")
+    f.write("Hispanic / Latino 2010: " + str(hispanicLatinoPercentage2010) + "\n")
+    f.write("Hispanic / Latino 2020: " + str(hispanicLatinoPercentage2020) + "\n")
+    f.write("Two or More Races 2000: " + str(twoOrMoreRacesPercentage2000) + "\n")
+    f.write("Two or More Races 2010: " + str(twoOrMoreRacesPercentage2010) + "\n")
+    f.write("Two or More Races 2020: " + str(twoOrMoreRacesPercentage2020) + "\n\n")
+    
+    f.close()
+    conn.commit()
+    return([p2000, p2010, p2020])
 
 def main():
+    f= open("documentation.txt", "a+")
 
     # Creates census database and provides column labels
     conn = sqlite3.connect('charts.db')
@@ -101,7 +323,7 @@ def main():
     if count2000 >= 50:
         print("Census Scraping Complete")
         viz()
-        
+        viz2(writepercents(write_file()))
 
     else:
         # Processes the next 25 states to add from Census 2000 and runs the API
@@ -139,336 +361,11 @@ def main():
             cur.execute('INSERT INTO census2010 (State_Name, White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces) VALUES (?,?,?,?,?,?,?,?)', (d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7]))
         for d in resp2020[1:]:
             cur.execute('INSERT INTO census2020 (State_Name, White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces) VALUES (?,?,?,?,?,?,?,?)', (d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7]))
-
-        # All Below calculations aggregate population totals by race from census.db -- census2000
-        
-        # Total Number of White Individuals in 2000
-        total_White_2000 = 0
-
-        for d in resp2000[1:]:
-            total_White_2000 = total_White_2000 + int(d[1])
-
-        # Total Number of African American Individuals in 2000
-        total_AfricanAmerican_2000 = 0
-        
-        for d in resp2000[1:]:
-            total_AfricanAmerican_2000 = total_AfricanAmerican_2000 + int(d[2])
-
-        # Total Number of American Indian and Alaska Native Individuals in 2000
-        total_AmericanIndianAlaska_2000 = 0
-        
-        for d in resp2000[1:]:
-            total_AmericanIndianAlaska_2000 = total_AmericanIndianAlaska_2000 + int(d[3])
-
-        # Total Number of Asian Individuals in 2000
-        total_Asian_2000 = 0
-        
-        for d in resp2000[1:]:
-            total_Asian_2000 = total_Asian_2000 + int(d[4])
-
-        # Total Number of Hawaiian Natives and Paicfic Islander Individuals in 2000
-        total_HawaiianOtherPacificIslander_2000  = 0
-        
-        for d in resp2000[1:]:
-            total_HawaiianOtherPacificIslander_2000 = total_HawaiianOtherPacificIslander_2000 + int(d[5])
-
-        # Total Number of Hispanic or Latino Individuals in 2000
-        total_HispanicLatino_2000 = 0
-        
-        for d in resp2000[1:]:
-            total_HispanicLatino_2000 = total_HispanicLatino_2000 + int(d[6])
-
-        # Total Number of Two or More Race Individuals in 2000
-        total_TwoOrMoreRaces_2000 = 0
-        
-        for d in resp2000[1:]:
-            total_TwoOrMoreRaces_2000 = total_TwoOrMoreRaces_2000 + int(d[7])
-
-        # All Below calculations aggregate population totals by race from census.db -- census2010
-
-        # Total Number of White Individuals in 2010
-        total_White_2010 = 0
-
-        for d in resp2010[1:]:
-            total_White_2010 = total_White_2010 + int(d[1])
-
-        # Total Number of African American Individuals in 2010
-        total_AfricanAmerican_2010 = 0
-        
-        for d in resp2010[1:]:
-            total_AfricanAmerican_2010 = total_AfricanAmerican_2010 + int(d[2])
-
-        # Total Number of American Indian and Alaska Native Individuals in 2010
-        total_AmericanIndianAlaska_2010 = 0
-        
-        for d in resp2010[1:]:
-            total_AmericanIndianAlaska_2010 = total_AmericanIndianAlaska_2010 + int(d[3])
-
-        # Total Number of Asian Individuals in 2010
-        total_Asian_2010 = 0
-        
-        for d in resp2010[1:]:
-            total_Asian_2010 = total_Asian_2010 + int(d[4])
-
-        # Total Number of Hawaiian Natives and Paicfic Islander Individuals in 2010
-        total_HawaiianOtherPacificIslander_2010  = 0
-        
-        for d in resp2010[1:]:
-            total_HawaiianOtherPacificIslander_2010 = total_HawaiianOtherPacificIslander_2010 + int(d[5])
-
-        # Total Number of Hispanic or Latino Individuals in 2010
-        total_HispanicLatino_2010 = 0
-        
-        for d in resp2010[1:]:
-            total_HispanicLatino_2010 = total_HispanicLatino_2010 + int(d[6])
-
-        # Total Number of Two or More Race Individuals in 2010
-        total_TwoOrMoreRaces_2010 = 0
-        
-        for d in resp2010[1:]:
-            total_TwoOrMoreRaces_2010 = total_TwoOrMoreRaces_2010 + int(d[7])
-
-        # All Below calculations aggregate population totals by race from census.db -- census2020
-
-        # Total Number of White Individuals in 2020
-        total_White_2020 = 0
-
-        for d in resp2020[1:]:
-            total_White_2020 = total_White_2020 + int(d[1])
-
-        # Total Number of African American Individuals in 2020
-        total_AfricanAmerican_2020 = 0
-        
-        for d in resp2020[1:]:
-            total_AfricanAmerican_2020 = total_AfricanAmerican_2020 + int(d[2])
-
-        # Total Number of American Indian and Alaska Native Individuals in 2020
-        total_AmericanIndianAlaska_2020 = 0
-        
-        for d in resp2020[1:]:
-            total_AmericanIndianAlaska_2020 = total_AmericanIndianAlaska_2020 + int(d[3])
-
-        # Total Number of Asian Individuals in 2020
-        total_Asian_2020 = 0
-        
-        for d in resp2020[1:]:
-            total_Asian_2020 = total_Asian_2020 + int(d[4])
-
-        # Total Number of Hawaiian Natives and Paicfic Islander Individuals in 2020
-        total_HawaiianOtherPacificIslander_2020  = 0
-        
-        for d in resp2020[1:]:
-            total_HawaiianOtherPacificIslander_2020 = total_HawaiianOtherPacificIslander_2020 + int(d[5])
-
-        # Total Number of Hispanic or Latino Individuals in 2020
-        total_HispanicLatino_2020 = 0
-        
-        for d in resp2020[1:]:
-            total_HispanicLatino_2020 = total_HispanicLatino_2020 + int(d[6])
-
-        # Total Number of Two or More Race Individuals in 2020
-        total_TwoOrMoreRaces_2020 = 0
-        
-        for d in resp2020[1:]:
-            total_TwoOrMoreRaces_2020 = total_TwoOrMoreRaces_2020 + int(d[7])
-
-        
-        # Inserts tables for diversity totals in US during 2000, 2010, and 2020, in order to organizen the calculations conducted above. NOT API-pulled data so no later data extractions were made. This is purely a summary / reference 
-        cur.execute("DROP TABLE IF EXISTS censustotal2000")
-        cur.execute("CREATE TABLE censustotal2000 ('Year' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT)")
-        cur.execute("DROP TABLE IF EXISTS censustotal2010")
-        cur.execute("CREATE TABLE censustotal2010 ('Year' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT)")
-        cur.execute("DROP TABLE IF EXISTS censustotal2020")
-        cur.execute("CREATE TABLE censustotal2020 ('Year' TEXT PRIMARY KEY, 'White' TEXT, 'AfricanAmerican' TEXT, 'AmericanIndianAlaska' TEXT, 'Asian' TEXT, 'HawaiianOtherPacificIslander' TEXT, 'HispanicLatino' TEXT, 'TwoOrMoreRaces' TEXT)")
-
-
-        cur.execute('INSERT INTO censustotal2000 (Year, White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces) VALUES (?,?,?,?,?,?,?,?)', ('2000', total_White_2000, total_AfricanAmerican_2000, total_AmericanIndianAlaska_2000, total_Asian_2000, total_HawaiianOtherPacificIslander_2000, total_HispanicLatino_2000, total_TwoOrMoreRaces_2000))
-        cur.execute('INSERT INTO censustotal2010 (Year, White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces) VALUES (?,?,?,?,?,?,?,?)', ('2010', total_White_2010, total_AfricanAmerican_2010, total_AmericanIndianAlaska_2010, total_Asian_2010, total_HawaiianOtherPacificIslander_2010, total_HispanicLatino_2010, total_TwoOrMoreRaces_2010))
-        cur.execute('INSERT INTO censustotal2020 (Year, White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces) VALUES (?,?,?,?,?,?,?,?)', ('2020', total_White_2020, total_AfricanAmerican_2020, total_AmericanIndianAlaska_2020, total_Asian_2020, total_HawaiianOtherPacificIslander_2020, total_HispanicLatino_2020, total_TwoOrMoreRaces_2020))
-        
-
+            
         conn.commit()
 
-        # Total White Population Over Time
-        
-        cur.execute('SELECT SUM(White) FROM census2000')
-        White2000 = cur.fetchall()
-
-        cur.execute('SELECT SUM(White) FROM census2010')
-        White2010 = cur.fetchall()
-
-        cur.execute('SELECT SUM(White) FROM census2020')
-        White2020 = cur.fetchall()
-
-        # Total AfricanAmerican Population Over Time
-
-        cur.execute('SELECT SUM(AfricanAmerican) FROM census2000')
-        AfricanAmerican2000 = cur.fetchall()
-
-        cur.execute('SELECT SUM(AfricanAmerican) FROM census2010')
-        AfricanAmerican2010 = cur.fetchall()
-
-        cur.execute('SELECT SUM(AfricanAmerican) FROM census2020')
-        AfricanAmerican2020 = cur.fetchall()
-
-        # Total AmericanIndianAlaska Population Over Time
-
-        cur.execute('SELECT SUM(AmericanIndianAlaska) FROM census2000')
-        AmericanIndianAlaska2000 = cur.fetchall()
-
-        cur.execute('SELECT SUM(AmericanIndianAlaska) FROM census2010')
-        AmericanIndianAlaska2010 = cur.fetchall()
-
-        cur.execute('SELECT SUM(AmericanIndianAlaska) FROM census2020')
-        AmericanIndianAlaska2020 = cur.fetchall()
-
-        # Total Asian Population Over Time
-
-        cur.execute('SELECT SUM(Asian) FROM census2000')
-        Asian2000 = cur.fetchall()
-
-        cur.execute('SELECT SUM(Asian) FROM census2010')
-        Asian2010 = cur.fetchall()
-
-        cur.execute('SELECT SUM(Asian) FROM census2020')
-        Asian2020 = cur.fetchall()
-
-        # Total HawaiianOtherPacificIslander Population Over Time
-
-        cur.execute('SELECT SUM(HawaiianOtherPacificIslander) FROM census2000')
-        HawaiianOtherPacificIslander2000 = cur.fetchall()
-
-        cur.execute('SELECT SUM(HawaiianOtherPacificIslander) FROM census2010')
-        HawaiianOtherPacificIslander2010 = cur.fetchall()
-
-        cur.execute('SELECT SUM(HawaiianOtherPacificIslander) FROM census2020')
-        HawaiianOtherPacificIslander2020 = cur.fetchall()
-
-        # Total HispanicLatino Population Over Time
-
-        cur.execute('SELECT SUM(HispanicLatino) FROM census2000')
-        HispanicLatino2000 = cur.fetchall()
-
-        cur.execute('SELECT SUM(HispanicLatino) FROM census2010')
-        HispanicLatino2010 = cur.fetchall()
-
-        cur.execute('SELECT SUM(HispanicLatino) FROM census2020')
-        HispanicLatino2020 = cur.fetchall()
-
-        # Total TwoOrMoreRaces Population Over Time
-
-        cur.execute('SELECT SUM(TwoOrMoreRaces) FROM census2000')
-        TwoOrMoreRaces2000 = cur.fetchall()
-
-        cur.execute('SELECT SUM(TwoOrMoreRaces) FROM census2010')
-        TwoOrMoreRaces2010 = cur.fetchall()
-
-        cur.execute('SELECT SUM(TwoOrMoreRaces) FROM census2020')
-        TwoOrMoreRaces2020 = cur.fetchall()
 
 
-        # Total Numbers from all Races Over Time (to be entered into the database)
-
-        cur.execute('SELECT White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces, White+AfricanAmerican+AmericanIndianAlaska+Asian+HawaiianOtherPacificIslander+HispanicLatino+TwoOrMoreRaces FROM censustotal2000')
-        totalRaces2000 = cur.fetchall()
-
-
-        cur.execute('SELECT White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces, White+AfricanAmerican+AmericanIndianAlaska+Asian+HawaiianOtherPacificIslander+HispanicLatino+TwoOrMoreRaces FROM censustotal2010')
-        totalRaces2010 = cur.fetchall()
-
-        cur.execute('SELECT White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces, White+AfricanAmerican+AmericanIndianAlaska+Asian+HawaiianOtherPacificIslander+HispanicLatino+TwoOrMoreRaces FROM censustotal2020')
-        totalRaces2020 = cur.fetchall()
-
-        # White Percentage of the US Population 2000-2020
-        totalPopulation2000 = totalRaces2000[0][7]
-        totalWhite2000 = White2000[0][0]
-        whitePercentage2000 = totalWhite2000 / totalPopulation2000 
-
-        totalPopulation2010 = totalRaces2010[0][7]
-        totalWhite2010 = White2010[0][0]
-        whitePercentage2010 = totalWhite2010 / totalPopulation2010
-
-        totalPopulation2020 = totalRaces2020[0][7]
-        totalWhite2020 = White2020[0][0]
-        whitePercentage2020 = totalWhite2020 / totalPopulation2020
-
-        # African American Percentage of the US Population 2000-2020
-        totalPopulation2000 = totalRaces2000[0][7]
-        totalAfricanAmerican2000 = AfricanAmerican2000[0][0]
-        africanamericanPercentage2000 = totalAfricanAmerican2000 / totalPopulation2000 
-
-        totalPopulation2010 = totalRaces2010[0][7]
-        totalAfricanAmerican2010 = AfricanAmerican2010[0][0]
-        africanamericanPercentage2010 = totalAfricanAmerican2010 / totalPopulation2010
-
-        totalPopulation2020 = totalRaces2020[0][7]
-        totalAfricanAmerican2020 = AfricanAmerican2020[0][0]
-        africanamericanPercentage2020 = totalAfricanAmerican2020 / totalPopulation2020
-
-        # AmericanIndianAlaska Percentage of the US Population 2000-2020
-        totalPopulation2000 = totalRaces2000[0][7]
-        totalAmericanIndianAlaska2000 = AmericanIndianAlaska2000[0][0]
-        AmericanIndianAlaskaPercentage2000 = totalAmericanIndianAlaska2000 / totalPopulation2000 
-
-        totalPopulation2010 = totalRaces2010[0][7]
-        totalAmericanIndianAlaska2010 = AmericanIndianAlaska2010[0][0]
-        AmericanIndianAlaskaPercentage2010 = totalAmericanIndianAlaska2010 / totalPopulation2010
-
-        totalPopulation2020 = totalRaces2020[0][7]
-        totalAmericanIndianAlaska2020 = AmericanIndianAlaska2020[0][0]
-        AmericanIndianAlaskaPercentage2020 = totalAmericanIndianAlaska2020 / totalPopulation2020
-
-        # Asian Percentage of the US Population 2000-2020
-        totalPopulation2000 = totalRaces2000[0][7]
-        totalAsian2000 = Asian2000[0][0]
-        AsianPercentage2000 = totalAsian2000 / totalPopulation2000 
-
-        totalPopulation2010 = totalRaces2010[0][7]
-        totalAsian2010 = Asian2010[0][0]
-        AsianPercentage2010 = totalAsian2010 / totalPopulation2010
-
-        totalPopulation2020 = totalRaces2020[0][7]
-        totalAsian2020 = Asian2020[0][0]
-        AsianPercentage2020 = totalAsian2020 / totalPopulation2020
-
-        # HawaiianOtherPacificIslander Percentage of the US Population 2000-2020
-        totalPopulation2000 = totalRaces2000[0][7]
-        totalHawaiianOtherPacificIslander2000 = HawaiianOtherPacificIslander2000[0][0]
-        HawaiianOtherPacificIslanderPercentage2000 = totalHawaiianOtherPacificIslander2000 / totalPopulation2000 
-
-        totalPopulation2010 = totalRaces2010[0][7]
-        totalHawaiianOtherPacificIslander2010 = HawaiianOtherPacificIslander2010[0][0]
-        HawaiianOtherPacificIslanderPercentage2010 = totalHawaiianOtherPacificIslander2010 / totalPopulation2010
-
-        totalPopulation2020 = totalRaces2020[0][7]
-        totalHawaiianOtherPacificIslander2020 = HawaiianOtherPacificIslander2020[0][0]
-        HawaiianOtherPacificIslanderPercentage2020 = totalHawaiianOtherPacificIslander2020 / totalPopulation2020
-
-        # HispanicLatino Percentage of the US Population 2000-2020
-        totalPopulation2000 = totalRaces2000[0][7]
-        totalHispanicLatino2000 = HispanicLatino2000[0][0]
-        HispanicLatinoPercentage2000 = totalHispanicLatino2000 / totalPopulation2000 
-
-        totalPopulation2010 = totalRaces2010[0][7]
-        totalHispanicLatino2010 = HispanicLatino2010[0][0]
-        HispanicLatinoPercentage2010 = totalHispanicLatino2010 / totalPopulation2010
-
-        totalPopulation2020 = totalRaces2020[0][7]
-        totalHispanicLatino2020 = HispanicLatino2020[0][0]
-        HispanicLatinoPercentage2020 = totalHispanicLatino2020 / totalPopulation2020
-
-        # TwoOrMoreRaces Percentage of the US Population 2000-2020
-        totalPopulation2000 = totalRaces2000[0][7]
-        totalTwoOrMoreRaces2000 = TwoOrMoreRaces2000[0][0]
-        TwoOrMoreRacesPercentage2000 = totalTwoOrMoreRaces2000 / totalPopulation2000 
-
-        totalPopulation2010 = totalRaces2010[0][7]
-        totalTwoOrMoreRaces2010 = TwoOrMoreRaces2010[0][0]
-        TwoOrMoreRacesPercentage2010 = totalTwoOrMoreRaces2010 / totalPopulation2010
-
-        totalPopulation2020 = totalRaces2020[0][7]
-        totalTwoOrMoreRaces2020 = TwoOrMoreRaces2020[0][0]
-        TwoOrMoreRacesPercentage2020 = totalTwoOrMoreRaces2020 / totalPopulation2020
 
 if __name__ == "__main__":
     main()

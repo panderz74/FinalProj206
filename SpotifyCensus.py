@@ -192,9 +192,9 @@ def artist_frequency():
     ad3 = dict(sorted(ad3.items(), key=lambda item: item[1], reverse=True))
     conn.commit()
     f.write("Each artist dictionary shows the frequency of appearances on the billboard 100 for each respective year.\n")
-    f.write("Artist dictionary for 2000:\n" + str(ad1.items()))
-    f.write("Artist dictionary for 2010:\n" + str(ad2.items()))
-    f.write("Artist dictionary for 2020:\n" + str(ad3.items()))
+    f.write("\nArtist dictionary for 2000:\n" + str(ad1.items()))
+    f.write("\nArtist dictionary for 2010:\n" + str(ad2.items()))
+    f.write("\nArtist dictionary for 2020:\n" + str(ad3.items()))
     f.close()
     return (ad1, ad2, ad3)
 
