@@ -217,9 +217,6 @@ def write_file():
 
 
 def writepercents(totli):
-    conn = sqlite3.connect('charts.db')
-    cur = conn.cursor()
-
     totalPopulation2000 = 0
     totalPopulation2010 = 0
     totalPopulation2020 = 0
@@ -297,12 +294,9 @@ def writepercents(totli):
     f.write("Two or More Races 2020: " + str(twoOrMoreRacesPercentage2020) + "\n\n")
     
     f.close()
-    conn.commit()
     return([p2000, p2010, p2020])
 
 def main():
-    f= open("documentation.txt", "a+")
-
     # Creates census database and provides column labels
     conn = sqlite3.connect('charts.db')
     cur = conn.cursor()
