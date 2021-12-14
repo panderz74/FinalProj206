@@ -14,30 +14,29 @@ def run(link):
     return ast.literal_eval(resp.text)
 
 # Line chart demonstrating US Population Diversity by Race in years 2000, 2010, 2020
-def viz():
-    AfricanAmerican = np.array([.11, .11, .11])
-    HispanicLatinoy1 = np.array([.13, .16, .18])
-    TwoOrMoreRacesy2 = np.array([.02, .028, .096])
-    Whitey3 = np.array([.67, .63, .53])
-    Other = np.array([.07, .072, .084])
+def viz(pli):
+    africanAmerican = np.array([pli[0][1], pli[1][1], pli[2][1]])
+    hispanicLatinoy1 = np.array([pli[0][5], pli[1][5], pli[2][5]])
+    twoOrMoreRacesy2 = np.array([pli[0][6], pli[1][6], pli[2][6]])
+    whitey3 = np.array([pli[0][0], pli[1][0], pli[2][0]])
+    other = np.array([(pli[0][2] + pli[0][4]), (pli[1][2] + pli[1][4]), (pli[2][2] + pli[2][4])])
     years = ["2000", "2010", "2020"]
 
     plt.title("US Population Diversity by Race Over Time")
     plt.xlabel("Year")
     plt.ylabel("Percentage")
 
-    plt.plot(years, Whitey3, "-b", label = "White")
-    plt.plot(years, TwoOrMoreRacesy2, "-g", label = "Two Or More Races")
-    plt.plot(years, HispanicLatinoy1, "-r", label = "Hispanic or Latino")
-    plt.plot(years, AfricanAmerican, "-y", label = "Black or African American")
-    plt.plot(years, Other, "-o", label = "Other")
+    plt.plot(years, whitey3, "-b", label = "White")
+    plt.plot(years, twoOrMoreRacesy2, "-g", label = "Two Or More Races")
+    plt.plot(years, hispanicLatinoy1, "-r", label = "Hispanic or Latino")
+    plt.plot(years, africanAmerican, "-y", label = "Black or African American")
+    plt.plot(years, other, "-o", label = "Other")
 
     plt.legend(loc="upper right")
 
     plt.show()
 
 def viz2(pli):
-    print(pli)
     # Pie Chart demonstrating US Population Diversity Percentages by Race in 2000
     labels = 'White', 'AfricanAmerican', 'Asian', 'Hispanic or Latino', 'Two or More Races', 'Other'
     sizes = [pli[0][0], pli[0][1], pli[0][3], pli[0][5], pli[0][6], (pli[0][2] + pli[0][4])]
@@ -322,8 +321,9 @@ def main():
     # Checks if all Census data has been gathered yet
     if count2000 >= 50:
         print("Census Scraping Complete")
-        viz()
-        viz2(writepercents(write_file()))
+        view = writepercents(write_file())
+        viz(view)
+        viz2(view)
 
     else:
         # Processes the next 25 states to add from Census 2000 and runs the API
@@ -361,7 +361,7 @@ def main():
             cur.execute('INSERT INTO census2010 (State_Name, White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces) VALUES (?,?,?,?,?,?,?,?)', (d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7]))
         for d in resp2020[1:]:
             cur.execute('INSERT INTO census2020 (State_Name, White, AfricanAmerican, AmericanIndianAlaska, Asian, HawaiianOtherPacificIslander, HispanicLatino, TwoOrMoreRaces) VALUES (?,?,?,?,?,?,?,?)', (d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7]))
-            
+
         conn.commit()
 
 
